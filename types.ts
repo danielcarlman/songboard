@@ -22,3 +22,7 @@ export const registerOutputSchema = userSchema.pick({
   username: true,
 });
 export type RegisterOutput = z.infer<typeof registerOutputSchema>;
+export const loginInputSchema = registerInputSchema;
+export type LoginInput = z.infer<typeof loginInputSchema>;
+export const loginOutputSchema = registerOutputSchema;
+export type LoginOutput = z.infer<typeof loginOutputSchema>;
