@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { songsTable, usersTable } from "./schema";
-import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import {
+  createSelectSchema,
+  createInsertSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 export const envSchema = z.object({
   DB_URL: z.string(),
 });
@@ -16,6 +20,9 @@ export type Song = z.infer<typeof songSchema>;
 
 export const songInsertSchema = createInsertSchema(songsTable);
 export type SongInsert = z.infer<typeof songInsertSchema>;
+
+export const songUpdateSchema = createUpdateSchema(songsTable);
+export type SongUpdate = z.infer<typeof songUpdateSchema>;
 
 export const registerInputSchema = userInsertSchema.pick({
   username: true,
@@ -43,3 +50,30 @@ export type CreateSongInput = z.infer<typeof createSongInputSchema>;
 
 export const createSongOutputSchema = songSchema;
 export type CreateSongOutput = z.infer<typeof createSongOutputSchema>;
+
+export const deleteSongInputSchema = songSchema.pick({ id: true });
+export type DeleteSongInput = z.infer<typeof deleteSongInputSchema>;
+
+export const deleteSongOutputSchema = deleteSongInputSchema;
+export type DeleteSongOutput = z.infer<typeof deleteSongOutputSchema>;
+
+export const updateSongParamsSchema = songUpdateSchema
+  .pick({
+    id: true,
+  })
+  .required();
+export type UpdateSongParams = z.infer<typeof updateSongParamsSchema>;
+
+export const updateSongInputSchema = songUpdateSchema
+  .pick({
+    title: true,
+  })
+  .extend({ lyrics: z.string() })
+  .required();
+
+export type UpdateSongInput = z.infer<typeof updateSongInputSchema>;
+
+export const updateSongOutputSchema = z.object({
+  ok: z.boolean(),
+});
+export type UpdateSongOutputSchema = z.infer<typeof updateSongOutputSchema>;
