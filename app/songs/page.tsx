@@ -3,8 +3,10 @@ import jwt from "jsonwebtoken";
 import db from "@/db";
 import { usersTable, songsTable } from "@/schema";
 import { eq } from "drizzle-orm";
+import DeleteButton from "@/components/DeleteButton";
+import Link from "next/link";
 
-export default async function Dashboard() {
+export default async function Songs() {
   const cookieStore = await cookies();
   const cookie = cookieStore.get("jwt");
   if (!cookie?.value) {
@@ -34,9 +36,18 @@ export default async function Dashboard() {
       <h1>Songs:</h1>
       <ul>
         {songs.map((song) => (
-          <li>
+          <li key={song.id}>
             <h2>{song.title}</h2>
             <p>{song.lyrics}</p>
+            <div className="flex gap-2 items-center">
+              <Link
+                className="border px-2 py-1 bg-blue-950 text-white cursor-pointer"
+                href={`/update-song/${song.id}`}
+              >
+                Update Song
+              </Link>
+              <DeleteButton songId={song.id} />
+            </div>
           </li>
         ))}
       </ul>
