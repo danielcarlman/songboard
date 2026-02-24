@@ -1,11 +1,10 @@
 import db from "@/db";
-import { songsTable, usersTable } from "@/schema";
-import { loginOutputSchema } from "@/types";
+import { songsTable } from "@/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import jwt from "jsonwebtoken";
+
 import UpdateSongForm from "@/components/UpdateSongForm";
+import authenticate from "@/utils/authenticate";
 
 interface UpdatePageProps {
   params: Promise<{ id: string }>;
@@ -14,24 +13,9 @@ interface UpdatePageProps {
 export default async function UpdatePage({ params }: UpdatePageProps) {
   const { id } = await params;
   const songCondition = eq(songsTable.id, id);
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get("jwt");
-  if (!cookie?.value) {
-    redirect("/dashboard");
-  }
-  if (!process.env.JWT_SIGNATURE) {
-    throw new Error("JWT is missing");
-  }
-  const payload = jwt.verify(cookie.value, process.env.JWT_SIGNATURE);
-  if (typeof payload !== "object") {
-    redirect("/login");
-  }
-  const login = loginOutputSchema.parse(payload);
-  const userCondition = eq(usersTable.id, login.id);
-  const user = await db.query.usersTable.findFirst({
-    where: userCondition,
-  });
-  if (!user) {
+
+  const result = await authenticate();
+  if (!result.authenticated) {
     redirect("/login");
   }
 
@@ -43,8 +27,8 @@ export default async function UpdatePage({ params }: UpdatePageProps) {
     redirect("/songs");
   }
 
-  if (existingSong.userId !== user.id) {
-    redirect("/dashboard");
+  if (existingSong.userId !== result.user.id) {
+    redirect("/songs");
   }
   return <UpdateSongForm song={existingSong} />;
 }

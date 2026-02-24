@@ -1,32 +1,18 @@
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
 import db from "@/db";
-import { usersTable, songsTable } from "@/schema";
+import { songsTable } from "@/schema";
 import { eq } from "drizzle-orm";
 import DeleteButton from "@/components/DeleteButton";
 import Link from "next/link";
+import authenticate from "@/utils/authenticate";
+import { redirect } from "next/navigation";
 
 export default async function Songs() {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get("jwt");
-  if (!cookie?.value) {
-    return <div>Missing JWT</div>;
-  }
-  if (!process.env.JWT_SIGNATURE) {
-    throw new Error("JWT signature is missing");
-  }
-  const payload = jwt.verify(cookie.value, process.env.JWT_SIGNATURE);
-  if (typeof payload === "string") {
-    return <div>Invalid JWT</div>;
-  }
-  const user = await db.query.usersTable.findFirst({
-    where: eq(usersTable.id, payload.id),
-  });
-  if (!user) {
-    return <div>User not found</div>;
+  const result = await authenticate();
+  if (!result.authenticated) {
+    redirect("/login");
   }
   const songs = await db.query.songsTable.findMany({
-    where: eq(songsTable.userId, user.id),
+    where: eq(songsTable.userId, result.user.id),
   });
   if (!songs.length) {
     return <div>No songs available</div>;
