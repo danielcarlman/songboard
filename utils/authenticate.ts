@@ -32,5 +32,6 @@ export default async function authenticate() {
   if (!user) {
     return { authenticated: false, message: USER_NOT_FOUND } as const;
   }
-  return { authenticated: true, user } as const;
+  const { password, ...rest } = user;
+  return { authenticated: true, user: rest } as const;
 }

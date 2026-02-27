@@ -1,8 +1,9 @@
 "use client";
-import { loginInputSchema } from "@/types";
+import { useAuthContext } from "@/context/authContext";
 import { useState } from "react";
 
 export default function Login() {
+  const auth = useAuthContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   return (
@@ -10,10 +11,9 @@ export default function Login() {
       className="flex flex-col justify-center items-center space-y-4 py-8"
       onSubmit={async (e) => {
         e.preventDefault();
-        const data = { username, password };
-        const input = loginInputSchema.parse(data);
-        const init = { body: JSON.stringify(input), method: "POST" };
-        await fetch("/api/login", init);
+        await auth.login(username, password);
+        setUsername("");
+        setPassword("");
       }}
     >
       <input

@@ -1,19 +1,17 @@
 "use client";
-import { registerInputSchema } from "@/types";
+import { useAuthContext } from "@/context/authContext";
 import { useState } from "react";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const auth = useAuthContext();
   return (
     <form
       className="flex flex-col justify-center items-center space-y-4 py-8"
       onSubmit={async (e) => {
         e.preventDefault();
-        const data = { username, password };
-        const input = registerInputSchema.parse(data);
-        const init = { body: JSON.stringify(input), method: "POST" };
-        await fetch("/api/register", init);
+        await auth.register(username, password);
       }}
     >
       <input
