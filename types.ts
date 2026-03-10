@@ -5,9 +5,13 @@ import {
   createInsertSchema,
   createUpdateSchema,
 } from "drizzle-zod";
+
+// ENVIRONMENT TYPES
 export const envSchema = z.object({
   DB_URL: z.string(),
 });
+
+// DATABASE TYPES
 
 export const userSchema = createSelectSchema(usersTable);
 export type User = z.infer<typeof userSchema>;
@@ -24,22 +28,35 @@ export type SongInsert = z.infer<typeof songInsertSchema>;
 export const songUpdateSchema = createUpdateSchema(songsTable);
 export type SongUpdate = z.infer<typeof songUpdateSchema>;
 
+// API TYPES
+
+export const userDataSchema = userSchema.pick({
+  id: true,
+  username: true,
+});
+export type UserData = z.infer<typeof userDataSchema>;
+
+export const errorOutputSchema = z.object({ message: z.string() });
+export type ErrorOutput = z.infer<typeof errorOutputSchema>;
+
 export const registerInputSchema = userInsertSchema.pick({
   username: true,
   password: true,
 });
 export type RegisterInput = z.infer<typeof registerInputSchema>;
 
-export const registerOutputSchema = userSchema.pick({
-  id: true,
-  username: true,
-});
+export const registerOutputSchema = z.union([
+  userDataSchema,
+  errorOutputSchema,
+]);
+
 export type RegisterOutput = z.infer<typeof registerOutputSchema>;
 
 export const loginInputSchema = registerInputSchema;
 export type LoginInput = z.infer<typeof loginInputSchema>;
 
-export const loginOutputSchema = registerOutputSchema;
+export const loginOutputSchema = z.union([userDataSchema, errorOutputSchema]);
+
 export type LoginOutput = z.infer<typeof loginOutputSchema>;
 
 export const createSongInputSchema = songInsertSchema.pick({
@@ -77,3 +94,14 @@ export const updateSongOutputSchema = z.object({
   ok: z.boolean(),
 });
 export type UpdateSongOutputSchema = z.infer<typeof updateSongOutputSchema>;
+
+// CONTEXT TYPES
+
+export interface AuthContextValue {
+  authenticated: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
+  user?: LoginOutput;
+  message?: string;
+}
