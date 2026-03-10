@@ -14,17 +14,15 @@ export async function POST(request: Request) {
     where: eq(usersTable.username, input.username),
   });
   if (!existingUser) {
-    return NextResponse.json(
-      { message: "Username is not registered" },
-      { status: 400 },
-    );
+    const data = { message: "Username is not registered" };
+    const output = loginOutputSchema.parse(data);
+    return NextResponse.json(output, { status: 400 });
   }
   const match = await bcrypt.compare(input.password, existingUser.password);
   if (!match) {
-    return NextResponse.json(
-      { message: "Password is incorrect" },
-      { status: 400 },
-    );
+    const data = { message: "Password is incorrect" };
+    const output = loginOutputSchema.parse(data);
+    return NextResponse.json(output, { status: 400 });
   }
   const output = loginOutputSchema.parse(existingUser);
   if (!process.env.JWT_SIGNATURE) {

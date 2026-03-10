@@ -30,6 +30,7 @@ export default function Register() {
       <button className="border py-2 px-4 cursor-pointer" type="submit">
         Register
       </button>
+      <p>{auth.message}</p>
     </form>
   );
 }

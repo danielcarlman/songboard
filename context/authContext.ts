@@ -1,13 +1,5 @@
-import { LoginOutput, User } from "@/types";
+import { AuthContextValue } from "@/types";
 import { createContext, useContext } from "react";
-
-export interface AuthContextValue {
-  authenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
-  user?: LoginOutput;
-}
 
 export const authContext = createContext<AuthContextValue | null>(null);
 

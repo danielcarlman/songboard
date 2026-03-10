@@ -1,6 +1,6 @@
 import db from "@/db";
 import { usersTable } from "@/schema";
-import { loginOutputSchema } from "@/types";
+import { loginOutputSchema, userDataSchema } from "@/types";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
@@ -20,18 +20,27 @@ export default async function authenticate() {
   if (!process.env.JWT_SIGNATURE) {
     return { authenticated: false, message: JWT_SIGNATURE_MISSING } as const;
   }
-  const payload = jwt.verify(cookie.value, process.env.JWT_SIGNATURE);
-  if (typeof payload !== "object") {
-    return { authenticated: false, message: INVALID_JWT_DATA } as const;
+
+  try {
+    const payload = jwt.verify(cookie.value, process.env.JWT_SIGNATURE);
+    if (typeof payload !== "object") {
+      return { authenticated: false, message: INVALID_JWT_DATA } as const;
+    }
+    const userData = userDataSchema.parse(payload);
+    const userCondition = eq(usersTable.id, userData.id);
+    const user = await db.query.usersTable.findFirst({
+      where: userCondition,
+    });
+
+    if (!user) {
+      return { authenticated: false, message: USER_NOT_FOUND } as const;
+    }
+    const { password, ...rest } = user;
+    return { authenticated: true, user: rest } as const;
+  } catch (error) {
+    if (!(error instanceof Error)) {
+      throw error;
+    }
+    return { authenticated: false, message: error.message } as const;
   }
-  const login = loginOutputSchema.parse(payload);
-  const userCondition = eq(usersTable.id, login.id);
-  const user = await db.query.usersTable.findFirst({
-    where: userCondition,
-  });
-  if (!user) {
-    return { authenticated: false, message: USER_NOT_FOUND } as const;
-  }
-  const { password, ...rest } = user;
-  return { authenticated: true, user: rest } as const;
 }
