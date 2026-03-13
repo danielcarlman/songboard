@@ -99,9 +99,8 @@ export type UpdateSongOutputSchema = z.infer<typeof updateSongOutputSchema>;
 
 export interface AuthContextValue {
   authenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<string | undefined>;
   logout: () => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
-  user?: LoginOutput;
-  message?: string;
+  register: (username: string, password: string) => Promise<string | undefined>;
+  user?: UserData;
 }

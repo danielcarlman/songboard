@@ -4,15 +4,14 @@ import { authContext } from "@/context/authContext";
 import {
   AuthContextValue,
   loginInputSchema,
-  LoginOutput,
-  loginOutputSchema,
+  UserData,
   registerInputSchema,
 } from "@/types";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface AuthContextProviderProps {
-  user?: LoginOutput;
+  user?: UserData;
   children: ReactNode;
 }
 
@@ -22,37 +21,46 @@ export default function AuthContextProvider({
 }: AuthContextProviderProps) {
   const router = useRouter();
   const [userData, setUserData] = useState(user);
-  const [message, setMessage] = useState<string>();
   const authenticated = userData != null;
   async function register(username: string, password: string) {
     const data = { username, password };
     const input = registerInputSchema.parse(data);
     const init = { body: JSON.stringify(input), method: "POST" };
-    const response = await fetch("/api/register", init);
-    if (response.ok) {
-      router.push("/login");
-    } else {
-      const responseData = await response.json();
-      if (response.status === 400) {
-        console.log(responseData.message);
-        setMessage(responseData.message);
+    try {
+      const response = await fetch("/api/register", init);
+      if (response.ok) {
+        router.push("/login");
+      } else {
+        const responseData = await response.json();
+        if (response.status === 400) {
+          console.log(responseData.message);
+          return responseData.message;
+        }
       }
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+      return error.message;
     }
   }
   async function login(username: string, password: string) {
     const userData = { username, password };
     const input = loginInputSchema.parse(userData);
     const init = { body: JSON.stringify(input), method: "POST" };
-    const response = await fetch("/api/login", init);
-    const outputData = await response.json();
-    const output = loginOutputSchema.parse(outputData);
-    console.log("Login output:", output);
-    if ("message" in output) {
-      alert(output.message);
-      return;
+
+    try {
+      const response = await fetch("/api/login", init);
+      if (response.ok) {
+        router.push("/songs");
+      } else {
+        const responseData = await response.json();
+        return responseData.message;
+      }
+    } catch (error) {
+      if (!(error instanceof Error)) throw error;
+      return error.message;
     }
-    setUserData(output);
-    router.push("/songs");
   }
   async function logout() {
     await fetch("/api/logout/");
@@ -65,7 +73,6 @@ export default function AuthContextProvider({
     authenticated,
     logout,
     register,
-    message,
   };
   return <authContext.Provider value={value}>{children}</authContext.Provider>;
 }
