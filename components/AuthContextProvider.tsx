@@ -55,8 +55,8 @@ export default function AuthContextProvider({
         setUserData(loggedInUser);
         router.push("/songs");
       } else {
-        const responseData = await response.json();
-        return responseData.message;
+        const errorData = await response.json();
+        return errorData.message;
       }
     } catch (error) {
       if (!(error instanceof Error)) throw error;
