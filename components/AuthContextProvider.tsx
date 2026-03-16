@@ -20,8 +20,9 @@ export default function AuthContextProvider({
   children,
 }: AuthContextProviderProps) {
   const router = useRouter();
-  const [userData, setUserData] = useState(user);
+  const [userData, setUserData] = useState<UserData | undefined>(user);
   const authenticated = userData != null;
+
   async function register(username: string, password: string) {
     const data = { username, password };
     const input = registerInputSchema.parse(data);
@@ -33,25 +34,25 @@ export default function AuthContextProvider({
       } else {
         const responseData = await response.json();
         if (response.status === 400) {
-          console.log(responseData.message);
           return responseData.message;
         }
       }
     } catch (error) {
-      if (!(error instanceof Error)) {
-        throw error;
-      }
+      if (!(error instanceof Error)) throw error;
       return error.message;
     }
   }
+
   async function login(username: string, password: string) {
-    const userData = { username, password };
-    const input = loginInputSchema.parse(userData);
+    const userCredentials = { username, password };
+    const input = loginInputSchema.parse(userCredentials);
     const init = { body: JSON.stringify(input), method: "POST" };
 
     try {
       const response = await fetch("/api/login", init);
       if (response.ok) {
+        const loggedInUser = await response.json();
+        setUserData(loggedInUser);
         router.push("/songs");
       } else {
         const responseData = await response.json();
@@ -62,11 +63,13 @@ export default function AuthContextProvider({
       return error.message;
     }
   }
+
   async function logout() {
     await fetch("/api/logout/");
-    router.push("/login");
     setUserData(undefined);
+    router.push("/login");
   }
+
   const value: AuthContextValue = {
     user: userData,
     login,
@@ -74,5 +77,6 @@ export default function AuthContextProvider({
     logout,
     register,
   };
+
   return <authContext.Provider value={value}>{children}</authContext.Provider>;
 }
