@@ -45,17 +45,14 @@ export const registerInputSchema = userInsertSchema.pick({
 });
 export type RegisterInput = z.infer<typeof registerInputSchema>;
 
-export const registerOutputSchema = z.union([
-  userDataSchema,
-  errorOutputSchema,
-]);
+export const registerOutputSchema = userDataSchema;
 
 export type RegisterOutput = z.infer<typeof registerOutputSchema>;
 
 export const loginInputSchema = registerInputSchema;
 export type LoginInput = z.infer<typeof loginInputSchema>;
 
-export const loginOutputSchema = z.union([userDataSchema, errorOutputSchema]);
+export const loginOutputSchema = userDataSchema;
 
 export type LoginOutput = z.infer<typeof loginOutputSchema>;
 

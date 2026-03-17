@@ -6,6 +6,8 @@ import {
   loginInputSchema,
   UserData,
   registerInputSchema,
+  errorOutputSchema,
+  loginOutputSchema,
 } from "@/types";
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +22,7 @@ export default function AuthContextProvider({
   children,
 }: AuthContextProviderProps) {
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | undefined>(user);
+  const [userData, setUserData] = useState(user);
   const authenticated = userData != null;
 
   async function register(username: string, password: string) {
@@ -33,8 +35,9 @@ export default function AuthContextProvider({
         router.push("/login");
       } else {
         const responseData = await response.json();
+        const errorOutput = errorOutputSchema.parse(responseData);
         if (response.status === 400) {
-          return responseData.message;
+          return errorOutput.message;
         }
       }
     } catch (error) {
@@ -50,13 +53,14 @@ export default function AuthContextProvider({
 
     try {
       const response = await fetch("/api/login", init);
+      const responseData = await response.json();
       if (response.ok) {
-        const loggedInUser = await response.json();
-        setUserData(loggedInUser);
+        const loginOutput = loginOutputSchema.parse(responseData);
+        setUserData(loginOutput);
         router.push("/songs");
       } else {
-        const errorData = await response.json();
-        return errorData.message;
+        const loginOutput = errorOutputSchema.parse(responseData);
+        return loginOutput.message;
       }
     } catch (error) {
       if (!(error instanceof Error)) throw error;
