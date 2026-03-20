@@ -1,6 +1,6 @@
 "use client";
 import clsx from "clsx";
-import { createSongInputSchema } from "@/types";
+import { createSongInputSchema, errorOutputSchema } from "@/types";
 import { useState } from "react";
 
 export default function CreateSongForm() {
@@ -8,6 +8,7 @@ export default function CreateSongForm() {
   const [lyrics, setLyrics] = useState("");
   const [isCreated, setIsCreated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string>();
   return (
     <form
       className="flex flex-col justify-center items-center space-y-4 py-8"
@@ -18,7 +19,16 @@ export default function CreateSongForm() {
         const input = createSongInputSchema.parse(data);
         const init = { body: JSON.stringify(input), method: "POST" };
         const response = await fetch("/api/create-song", init);
-        setIsCreated(response.ok);
+        const responseData: unknown = await response.json();
+        console.log("Response Data:", responseData);
+        if (response.ok) {
+          setIsCreated(true);
+          setMessage(undefined);
+        } else {
+          const errorOutput = errorOutputSchema.parse(responseData);
+          setIsCreated(false);
+          setMessage(errorOutput.message);
+        }
         setIsLoading(false);
       }}
     >
@@ -53,6 +63,7 @@ export default function CreateSongForm() {
         Create Song
       </button>
       {isCreated && <p>Song created successfully</p>}
+      {message && <p>{message}</p>}
     </form>
   );
 }
