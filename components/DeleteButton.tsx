@@ -2,10 +2,10 @@
 
 export default function DeleteButton({
   songId,
-  updateSongs,
+  deleteSong,
 }: {
   songId: string;
-  updateSongs: (id: string) => void;
+  deleteSong: (id: string) => void;
 }) {
   return (
     <button
@@ -14,7 +14,7 @@ export default function DeleteButton({
         const init = { method: "DELETE" };
         const response = await fetch(`/api/delete-song/${songId}`, init);
         if (response.ok) {
-          updateSongs(songId);
+          deleteSong(songId);
         }
       }}
     >

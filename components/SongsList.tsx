@@ -8,9 +8,9 @@ import { useState } from "react";
 export default function SongsList({ songs: initialSongs }: { songs: Song[] }) {
   const [songs, setSongs] = useState(initialSongs);
 
-  const updateSongs = (songId: string) => {
-    const updatedSongs = songs.filter((song) => song.id !== songId);
-    setSongs(updatedSongs);
+  const deleteSong = (songId: string) => {
+    const filteredSongs = songs.filter((song) => song.id !== songId);
+    setSongs(filteredSongs);
   };
 
   return (
@@ -28,7 +28,7 @@ export default function SongsList({ songs: initialSongs }: { songs: Song[] }) {
               >
                 Update Song
               </Link>
-              <DeleteButton songId={song.id} updateSongs={updateSongs} />
+              <DeleteButton songId={song.id} deleteSong={deleteSong} />
             </div>
           </li>
         ))}
