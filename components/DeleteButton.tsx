@@ -1,11 +1,12 @@
 "use client";
-
+import { Song } from "@/types";
+import { SetStateAction, Dispatch } from "react";
 export default function DeleteButton({
   songId,
-  deleteSong,
+  setSongs,
 }: {
   songId: string;
-  deleteSong: (id: string) => void;
+  setSongs: Dispatch<SetStateAction<Song[]>>;
 }) {
   return (
     <button
@@ -14,7 +15,9 @@ export default function DeleteButton({
         const init = { method: "DELETE" };
         const response = await fetch(`/api/delete-song/${songId}`, init);
         if (response.ok) {
-          deleteSong(songId);
+          setSongs((currentSongs) =>
+            currentSongs.filter((song) => song.id !== songId),
+          );
         }
       }}
     >
