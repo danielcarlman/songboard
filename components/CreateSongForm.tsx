@@ -15,12 +15,13 @@ export default function CreateSongForm() {
       onSubmit={async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setIsCreated(false);
+        setMessage("");
         const data = { title, lyrics };
         const input = createSongInputSchema.parse(data);
         const init = { body: JSON.stringify(input), method: "POST" };
         const response = await fetch("/api/create-song", init);
         const responseData: unknown = await response.json();
-        console.log("Response Data:", responseData);
         if (response.ok) {
           setIsCreated(true);
           setMessage(undefined);
@@ -37,6 +38,7 @@ export default function CreateSongForm() {
         className="border py-2 px-4"
         value={title}
         onChange={(e) => {
+          setMessage("");
           setTitle(e.target.value);
           setIsCreated(false);
         }}
@@ -47,6 +49,7 @@ export default function CreateSongForm() {
         className="border py-2 px-4"
         value={lyrics}
         onChange={(e) => {
+          setMessage("");
           setLyrics(e.target.value);
           setIsCreated(false);
         }}
