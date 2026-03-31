@@ -6,7 +6,7 @@ import {
   UpdateSongParams,
   updateSongParamsSchema,
 } from "@/types";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import authenticate from "@/utils/authenticate";
 
@@ -41,6 +41,21 @@ export async function PUT(
   }
   const body: unknown = await request.json();
   const input = updateSongInputSchema.parse(body);
+
+  const songTitleCondition = eq(songsTable.title, input.title);
+  const songIdCondition = ne(songsTable.id, inputParams.id);
+  const duplicateCondition = and(songTitleCondition, songIdCondition);
+  const duplicateSong = await db.query.songsTable.findFirst({
+    where: duplicateCondition,
+  });
+
+  if (duplicateSong != null) {
+    return NextResponse.json(
+      { message: "This song title already exists" },
+      { status: 400 },
+    );
+  }
+
   await db.update(songsTable).set(input).where(songCondition);
   const output = updateSongOutputSchema.parse({ ok: true });
   return NextResponse.json(output);
