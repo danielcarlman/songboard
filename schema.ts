@@ -12,7 +12,7 @@ export const songsTable = pgTable("songs", {
   userId: uuid()
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
-  title: text().notNull(),
+  title: text().notNull().unique(),
   lyrics: text(),
 });
 
