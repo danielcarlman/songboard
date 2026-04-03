@@ -4,6 +4,8 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import authenticate from "@/utils/authenticate";
 import AuthContextProvider from "@/components/AuthContextProvider";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,14 +30,16 @@ export default async function RootLayout({
   const auth = await authenticate();
   return (
     <html lang="en">
-      <AuthContextProvider user={auth.user}>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <NavBar />
-          {children}
-        </body>
-      </AuthContextProvider>
+      <Provider store={store}>
+        <AuthContextProvider user={auth.user}>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            <NavBar />
+            {children}
+          </body>
+        </AuthContextProvider>
+      </Provider>
     </html>
   );
 }
