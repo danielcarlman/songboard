@@ -1,11 +1,13 @@
 // ACTION TYPES
 
+import { devToolsEnhancer } from "@redux-devtools/extension";
 import { UserData } from "@/types";
 import { legacy_createStore } from "redux";
+import { useDispatch } from "react-redux";
 
-const AUTHENTICATE = "AUTHENTICATE";
+export const AUTHENTICATE = "AUTHENTICATE";
 
-const UNAUTHENTICATE = "UNAUTHENTICATE";
+export const UNAUTHENTICATE = "UNAUTHENTICATE";
 
 interface AuthenticateAction {
   type: typeof AUTHENTICATE;
@@ -29,6 +31,8 @@ const initialState: State = {
 };
 
 const reducer = (state = initialState, action: Action) => {
+  console.log("ACTION :", action);
+  console.log("STATE :", state);
   switch (action.type) {
     case AUTHENTICATE:
       return { ...state, user: action.payload };
@@ -41,5 +45,10 @@ const reducer = (state = initialState, action: Action) => {
   }
 };
 
-const store = legacy_createStore(reducer);
+const enhancer = devToolsEnhancer();
+const store = legacy_createStore(reducer, enhancer);
 export default store;
+type AppDispatch = typeof store.dispatch;
+export function useAppDispatch() {
+  return useDispatch<AppDispatch>();
+}

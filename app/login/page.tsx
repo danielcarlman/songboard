@@ -1,8 +1,11 @@
 "use client";
 import { authContext, useAuthContext } from "@/context/authContext";
+import { AUTHENTICATE, useAppDispatch } from "@/redux/store";
 import { useState } from "react";
+import { UserData } from "@/types";
 
 export default function Login() {
+  const dispatch = useAppDispatch();
   const auth = useAuthContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,6 +19,10 @@ export default function Login() {
         if (message === "Failed to fetch") {
           setMessage("You're offline");
         } else if (!message) {
+          dispatch({
+            type: AUTHENTICATE,
+            payload: { id: id, username: username },
+          });
           setUsername("");
           setPassword("");
         } else {
