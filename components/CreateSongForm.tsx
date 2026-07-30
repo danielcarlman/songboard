@@ -1,7 +1,8 @@
 "use client";
 import clsx from "clsx";
-import { createSongInputSchema, errorOutputSchema } from "@/types";
+import { errorOutputSchema } from "@/types";
 import { useState } from "react";
+import requestCreateSong from "@/utils/requestCreateSong";
 
 export default function CreateSongForm() {
   const [title, setTitle] = useState("");
@@ -17,20 +18,20 @@ export default function CreateSongForm() {
         setIsLoading(true);
         setIsCreated(false);
         setMessage("");
-        const data = { title, lyrics };
-        const input = createSongInputSchema.parse(data);
-        const init = { body: JSON.stringify(input), method: "POST" };
-        const response = await fetch("/api/create-song", init);
-        const responseData: unknown = await response.json();
-        if (response.ok) {
+
+        try {
+          await requestCreateSong(title, lyrics);
           setIsCreated(true);
           setMessage(undefined);
-        } else {
-          const errorOutput = errorOutputSchema.parse(responseData);
+        } catch (error) {
           setIsCreated(false);
-          setMessage(errorOutput.message);
+          if (!(error instanceof Error)) {
+            throw new Error("Unknown error");
+          }
+          setMessage(error.message);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }}
     >
       <input
