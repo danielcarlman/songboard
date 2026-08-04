@@ -1,6 +1,6 @@
 import db from "@/db";
 import { usersTable } from "@/schema";
-import { loginInputSchema, loginOutputSchema } from "@/types";
+import { errorOutputSchema, loginInputSchema, loginOutputSchema } from "@/types";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
@@ -15,13 +15,13 @@ export async function POST(request: Request) {
   });
   if (!existingUser) {
     const data = { message: "Username is not registered" };
-    const output = loginOutputSchema.parse(data);
+    const output = errorOutputSchema.parse(data);
     return NextResponse.json(output, { status: 400 });
   }
   const match = await bcrypt.compare(input.password, existingUser.password);
   if (!match) {
     const data = { message: "Password is incorrect" };
-    const output = loginOutputSchema.parse(data);
+    const output = errorOutputSchema.parse(data);
     return NextResponse.json(output, { status: 400 });
   }
   const output = loginOutputSchema.parse(existingUser);
