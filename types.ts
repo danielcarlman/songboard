@@ -22,10 +22,14 @@ export type UserInsert = z.infer<typeof userInsertSchema>;
 export const songSchema = createSelectSchema(songsTable);
 export type Song = z.infer<typeof songSchema>;
 
-export const songInsertSchema = createInsertSchema(songsTable);
+export const songInsertSchema = createInsertSchema(songsTable, {
+  title: (schema) => schema.min(1).max(255),
+});
 export type SongInsert = z.infer<typeof songInsertSchema>;
 
-export const songUpdateSchema = createUpdateSchema(songsTable);
+export const songUpdateSchema = createUpdateSchema(songsTable, {
+  title: (schema) => schema.min(1).max(255),
+});
 export type SongUpdate = z.infer<typeof songUpdateSchema>;
 
 // API TYPES
