@@ -10,4 +10,8 @@ module.exports = {
     ...tsJestTransformCfg,
   },
   setupFilesAfterEnv: ["@testing-library/jest-dom"],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/$1",
+  },
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/tests/"],
 };

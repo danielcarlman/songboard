@@ -46,7 +46,9 @@ describe("<DeleteButton />", () => {
   });
 
   test("should delete the song on button click", async () => {
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true })) as jest.Mock;
+    global.fetch = jest.fn(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
+    ) as jest.Mock;
 
     render(<DeleteButtonWrapperWithTwoSongs />);
     const buttons = screen.getAllByRole("button");
