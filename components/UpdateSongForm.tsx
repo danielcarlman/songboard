@@ -1,6 +1,6 @@
 "use client";
-
-import { errorOutputSchema, Song, updateSongInputSchema } from "@/types";
+import { Song } from "@/types";
+import requestUpdateSong from "@/utils/requestUpdateSong";
 import clsx from "clsx";
 import { useState } from "react";
 
@@ -22,20 +22,20 @@ export default function UpdateSongForm({ song }: UpdateSongFormProps) {
         setMessage("");
         setIsLoading(true);
         setIsUpdated(false);
-        const data = { title, lyrics };
-        const input = updateSongInputSchema.parse(data);
-        const init = { body: JSON.stringify(input), method: "PUT" };
-        const response = await fetch(`/api/update-song/${song.id}`, init);
-        const responseData: unknown = await response.json();
-        if (response.ok) {
+
+        try {
+          await requestUpdateSong(title, lyrics, song.id);
           setIsUpdated(true);
           setMessage(undefined);
-        } else {
-          const errorOutput = errorOutputSchema.parse(responseData);
+        } catch (error) {
           setIsUpdated(false);
-          setMessage(errorOutput.message);
+          if (!(error instanceof Error)) {
+            throw new Error("Unknown error");
+          }
+          setMessage(error.message);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }}
     >
       <fieldset className="flex flex-col gap-2" disabled={isLoading}>

@@ -90,7 +90,7 @@ export type UpdateSongInput = z.infer<typeof updateSongInputSchema>;
 export const updateSongOutputSchema = z.object({
   ok: z.boolean(),
 });
-export type UpdateSongOutputSchema = z.infer<typeof updateSongOutputSchema>;
+export type UpdateSongOutput = z.infer<typeof updateSongOutputSchema>;
 
 // CONTEXT TYPES
 

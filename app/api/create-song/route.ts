@@ -1,7 +1,6 @@
 import {
   createSongInputSchema,
   createSongOutputSchema,
-  loginOutputSchema,
   SongInsert,
 } from "@/types";
 import db from "@/db";

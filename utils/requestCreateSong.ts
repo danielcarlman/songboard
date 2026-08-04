@@ -1,4 +1,8 @@
-import { createSongInputSchema, errorOutputSchema } from "@/types";
+import {
+  createSongInputSchema,
+  createSongOutputSchema,
+  errorOutputSchema,
+} from "@/types";
 
 export default async function requestCreateSong(title: string, lyrics: string) {
   const inputData = { title, lyrics };
@@ -7,17 +11,10 @@ export default async function requestCreateSong(title: string, lyrics: string) {
   const response = await fetch("/api/create-song", init);
   const outputData = await response.json();
   if (response.ok) {
-    return outputData;
+    const output = createSongOutputSchema.parse(outputData);
+    return output;
   }
   const errorOutput = errorOutputSchema.parse(outputData);
   const error = new Error(errorOutput.message);
-  /*
-  {
-    cause?: string
-    name: string
-    message: string
-    stack?: string
-  }
-  */
   throw error;
 }
